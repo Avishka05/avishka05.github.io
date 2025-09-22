@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe Likes Demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🍲 Simple Recipe Page</h1>
+    <p>Try liking the recipes with cool microinteractions!</p>
+  </header>
+
+  <main>
+    <!-- Recipe 1: Click-to-Like -->
+    <section class="recipe-card">
+      <h2>Spaghetti Aglio e Olio</h2>
+      <p>A quick Italian pasta with garlic and olive oil.</p>
+      <div class="like-section">
+        <button class="like-btn" id="likeBtn1" aria-label="Like Spaghetti">
+          ❤️
+        </button>
+        <span class="like-count" id="likeCount1">0</span>
+        <div class="particles" id="particles1"></div>
+      </div>
+    </section>
+
+    <!-- Recipe 2: Long-Press-to-Like -->
+    <section class="recipe-card">
+      <h2>Avocado Toast</h2>
+      <p>Healthy toast with smashed avocado and toppings.</p>
+      <div class="like-section">
+        <button class="longpress-btn" id="longPressBtn" aria-label="Long-press to like">
+          🤍
+          <div class="progress"></div>
+        </button>
+        <span class="like-count" id="likeCount2">0</span>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

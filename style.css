@@ -1,0 +1,92 @@
+/* General Page Styling */
+body {
+  font-family: Arial, sans-serif;
+  background: #fafafa;
+  margin: 0;
+  padding: 0;
+  color: #333;
+  text-align: center;
+}
+
+header {
+  background: #ffefd5;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+h1 {
+  margin: 0 0 10px;
+}
+
+main {
+  display: grid;
+  gap: 20px;
+  max-width: 600px;
+  margin: 30px auto;
+}
+
+.recipe-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Like Section */
+.like-section {
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* A: Click-to-Like Heart */
+.like-btn {
+  font-size: 28px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.like-btn:active {
+  transform: scale(1.3);
+}
+
+.like-count {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Particles */
+.particles {
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+}
+
+/* B: Long-Press Heart */
+.longpress-btn {
+  position: relative;
+  font-size: 28px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+.longpress-btn .progress {
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  height: 4px;
+  width: 0%;
+  background: #ff4b5c;
+  border-radius: 4px;
+  transition: width 0.2s linear;
+}
