@@ -1,92 +1,225 @@
-// A: Click-to-Like with particle burst + count increment
-const likeBtn1 = document.getElementById("likeBtn1");
-const likeCount1 = document.getElementById("likeCount1");
-const particles1 = document.getElementById("particles1");
-
-let count1 = 0;
-
-likeBtn1.addEventListener("click", () => {
-  count1++;
-  animateCount(likeCount1, count1);
-  createParticles(particles1, likeBtn1);
-});
-
-function animateCount(element, newCount) {
-  let current = parseInt(element.textContent, 10);
-  const step = newCount > current ? 1 : -1;
-
-  const interval = setInterval(() => {
-    current += step;
-    element.textContent = current;
-    if (current === newCount) clearInterval(interval);
-  }, 40);
+// Utility: announce for screen readers
+function announce(message) {
+  const live = document.getElementById('srLive');
+  if (!live) return;
+  live.textContent = '';
+  setTimeout(() => (live.textContent = message), 0);
 }
 
-function createParticles(container, button) {
-  for (let i = 0; i < 6; i++) {
-    const particle = document.createElement("span");
-    particle.textContent = "✨";
-    particle.style.position = "absolute";
-    particle.style.left = button.offsetLeft + "px";
-    particle.style.top = button.offsetTop + "px";
-    particle.style.fontSize = "14px";
-    particle.style.opacity = 1;
-    container.appendChild(particle);
+// Easing function for manual animations
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
-    const x = (Math.random() - 0.5) * 100;
-    const y = (Math.random() - 0.5) * 100;
+// Microinteraction A: click to like with particle burst and rolling count
+(function setupMicroA() {
+  const btn = document.getElementById('likeA');
+  const burst = document.getElementById('burstA');
+  const ticker = document.getElementById('countA');
+  const current = ticker.querySelector('.current');
+  const next = ticker.querySelector('.next');
+  let count = Number(ticker.dataset.count || '0');
 
-    particle.animate(
-      [
-        { transform: "translate(0,0)", opacity: 1 },
-        { transform: `translate(${x}px, ${y}px)`, opacity: 0 }
-      ],
-      { duration: 600, easing: "ease-out" }
-    ).onfinish = () => particle.remove();
-  }
-}
+  function createBurst(x, y, opts = {}) {
+    const colors = opts.colors || ['#ef4444', '#f97316', '#f59e0b', '#22c55e', '#06b6d4', '#8b5cf6', '#ec4899'];
+    const extraClass = opts.extraClass || '';
+    const num = 14;
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const originX = typeof x === 'number' ? x : cx;
+    const originY = typeof y === 'number' ? y : cy;
 
-// B: Long-press to like
-const longPressBtn = document.getElementById("longPressBtn");
-const progressBar = longPressBtn.querySelector(".progress");
-const likeCount2 = document.getElementById("likeCount2");
-
-let timer;
-let progress = 0;
-let count2 = 0;
-
-function startHold() {
-  progress = 0;
-  progressBar.style.width = "0%";
-
-  timer = setInterval(() => {
-    progress += 10;
-    progressBar.style.width = progress + "%";
-
-    if (progress >= 100) {
-      clearInterval(timer);
-      confirmLike();
+    for (let i = 0; i < num; i++) {
+      const p = document.createElement('span');
+      p.className = 'particle' + (extraClass ? ' ' + extraClass : '');
+      const angle = (i / num) * Math.PI * 2;
+      const radius = 28 + Math.random() * 12;
+      const dx = Math.cos(angle) * radius;
+      const dy = Math.sin(angle) * radius;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      p.style.setProperty('--color', color);
+      p.style.left = originX + 'px';
+      p.style.top = originY + 'px';
+      burst.appendChild(p);
+      // animate
+      const start = performance.now();
+      const duration = 520;
+      function frame(now) {
+        const t = Math.min(1, (now - start) / duration);
+        const e = easeOutCubic(t);
+        const tx = originX + dx * e;
+        const ty = originY + dy * e;
+        p.style.transform = `translate(${tx - originX}px, ${ty - originY}px) scale(${1 - 0.4 * e})`;
+        p.style.opacity = String(1 - t);
+        if (t < 1) requestAnimationFrame(frame); else p.remove();
+      }
+      requestAnimationFrame(frame);
     }
-  }, 100);
-}
+  }
 
-function endHold() {
-  clearInterval(timer);
-  progressBar.style.width = "0%";
-}
+  function rollTicker(newValue) {
+    next.textContent = String(newValue);
+    ticker.classList.add('roll');
+    const onAnimEnd = () => {
+      ticker.classList.remove('roll');
+      current.textContent = String(newValue);
+    };
+    setTimeout(onAnimEnd, 300);
+  }
 
-function confirmLike() {
-  longPressBtn.textContent = "❤️";
-  count2++;
-  animateCount(likeCount2, count2);
-  progressBar.style.width = "0%";
-}
+  function likeOnce(event) {
+    count += 1;
+    ticker.dataset.count = String(count);
+    rollTicker(count);
+    btn.classList.add('liked');
+    createBurst(
+      event && 'offsetX' in event ? event.offsetX : undefined,
+      event && 'offsetY' in event ? event.offsetY : undefined
+    );
+    announce(`Liked. Total likes ${count}.`);
+  }
 
-// Desktop
-longPressBtn.addEventListener("mousedown", startHold);
-longPressBtn.addEventListener("mouseup", endHold);
-longPressBtn.addEventListener("mouseleave", endHold);
+  function dislikeOnce(event) {
+    if (count <= 0) {
+      // Still provide feedback without changing count
+      createBurst(
+        event && 'offsetX' in event ? event.offsetX : undefined,
+        event && 'offsetY' in event ? event.offsetY : undefined,
+        { colors: ['#60a5fa', '#38bdf8', '#22d3ee', '#a78bfa'], extraClass: 'dislike' }
+      );
+      announce('Minimum likes reached.');
+      return;
+    }
+    count -= 1;
+    ticker.dataset.count = String(count);
+    // Update instantly without roll
+    ticker.classList.remove('roll');
+    current.textContent = String(count);
+    next.textContent = String(count + 1);
+    // Particle-only feedback with cool palette
+    createBurst(
+      event && 'offsetX' in event ? event.offsetX : undefined,
+      event && 'offsetY' in event ? event.offsetY : undefined,
+      { colors: ['#60a5fa', '#38bdf8', '#22d3ee', '#a78bfa'], extraClass: 'dislike' }
+    );
+    // Do not toggle/remove liked state explicitly; dislike is separate
+    announce(`Disliked. Total likes ${count}.`);
+  }
 
-// Mobile
-longPressBtn.addEventListener("touchstart", startHold);
-longPressBtn.addEventListener("touchend", endHold);
+  // Click vs double-click discrimination
+  let singleClickTimer = 0;
+  const LIKE_DELAY = 250;
+
+  btn.addEventListener('click', (e) => {
+    if (singleClickTimer) clearTimeout(singleClickTimer);
+    singleClickTimer = setTimeout(() => {
+      likeOnce(e);
+      singleClickTimer = 0;
+    }, LIKE_DELAY);
+  });
+
+  btn.addEventListener('dblclick', (e) => {
+    e.preventDefault();
+    if (singleClickTimer) {
+      clearTimeout(singleClickTimer);
+      singleClickTimer = 0;
+    }
+    dislikeOnce(e);
+  });
+
+  // Keyboard activation retains single-like behavior
+  btn.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    likeOnce();
+  });
+})();
+
+// Microinteraction B: long-press to like once with progress ring
+(function setupMicroB() {
+  const btn = document.getElementById('likeB');
+  const ticker = document.getElementById('countB');
+  const current = ticker.querySelector('.current');
+  const next = ticker.querySelector('.next');
+  let count = Number(ticker.dataset.count || '0');
+
+  const HOLD_MS = 650;
+  let holdStart = 0;
+  let raf = 0;
+  let fired = false;
+
+  function setProgress(p) {
+    const pct = Math.round(p * 100);
+    btn.style.setProperty('--p', pct + '%');
+  }
+
+  function likeOnce() {
+    if (fired) return; // single like per hold
+    fired = true;
+    count += 1;
+    ticker.dataset.count = String(count);
+    next.textContent = String(count);
+    ticker.classList.add('roll');
+    setTimeout(() => {
+      ticker.classList.remove('roll');
+      current.textContent = String(count);
+    }, 300);
+    btn.classList.add('liked');
+    announce(`Long-press like added. Total ${count}.`);
+  }
+
+  function startHold() {
+    holdStart = performance.now();
+    fired = false;
+    btn.classList.add('holding');
+    const tick = (now) => {
+      const t = Math.min(1, (now - holdStart) / HOLD_MS);
+      setProgress(easeOutCubic(t));
+      if (t >= 1) {
+        likeOnce();
+        endHold();
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+  }
+
+  function endHold(cancelOnly) {
+    btn.classList.remove('holding');
+    btn.style.removeProperty('--p');
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    if (cancelOnly) fired = false;
+  }
+
+  // Pointer events (mouse/touch)
+  btn.addEventListener('pointerdown', (e) => {
+    // only main button
+    if (e.button !== 0) return;
+    btn.setPointerCapture(e.pointerId);
+    startHold();
+  });
+  btn.addEventListener('pointerup', (e) => {
+    btn.releasePointerCapture(e.pointerId);
+    endHold(true);
+  });
+  btn.addEventListener('pointercancel', () => endHold(true));
+  btn.addEventListener('pointerleave', () => endHold(true));
+
+  // Keyboard long-press (Space/Enter)
+  btn.addEventListener('keydown', (e) => {
+    if (e.repeat) return; // avoid key repeat restarting
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      startHold();
+    }
+  });
+  btn.addEventListener('keyup', (e) => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      endHold(true);
+    }
+  });
+})();
+
+
