@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Microinteractions A & B — Like/Heart</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <main class="container">
+        <h1 class="title">UI‑UX Microinteractions: Heart Like</h1>
+
+        <section class="card">
+            <img class="photo" src="https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600&auto=format&fit=crop" alt="Sample photograph" />
+
+            <div class="actions">
+                <!-- Microinteraction A -->
+                <div class="action-block">
+                    <button id="likeA" class="heart-btn" aria-pressed="false" aria-label="Like photo (click)" data-micro="A">
+                        <svg class="heart" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 21s-6.716-4.686-9.252-7.222C.962 12.992 0 11.41 0 9.672 0 6.76 2.343 4.5 5.235 4.5 6.98 4.5 8.61 5.36 9.6 6.74 10.59 5.36 12.22 4.5 13.965 4.5 16.857 4.5 19.2 6.76 19.2 9.672c0 1.738-.961 3.32-2.748 4.106C18.716 16.314 12 21 12 21z" />
+                        </svg>
+                        <span class="visually-hidden">Click to like</span>
+                        <span aria-hidden="true" class="burst" id="burstA"></span>
+                    </button>
+                    <div class="count" aria-live="polite" aria-atomic="true">
+                        <span class="count-label">Likes</span>
+                        <div class="ticker" id="countA" data-count="0">
+                            <span class="current">0</span>
+                            <span class="next">1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Microinteraction B -->
+                <div class="action-block">
+                    <button id="likeB" class="heart-btn progress" aria-pressed="false" aria-label="Long-press to like (hold)" data-micro="B">
+                        <svg class="heart" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 21s-6.716-4.686-9.252-7.222C.962 12.992 0 11.41 0 9.672 0 6.76 2.343 4.5 5.235 4.5 6.98 4.5 8.61 5.36 9.6 6.74 10.59 5.36 12.22 4.5 13.965 4.5 16.857 4.5 19.2 6.76 19.2 9.672c0 1.738-.961 3.32-2.748 4.106C18.716 16.314 12 21 12 21z" />
+                        </svg>
+                        <span class="visually-hidden">Hold to like</span>
+                        <span class="ring" aria-hidden="true"></span>
+                    </button>
+                    <div class="count" aria-live="polite" aria-atomic="true">
+                        <span class="count-label">Long‑press Likes</span>
+                        <div class="ticker" id="countB" data-count="0">
+                            <span class="current">0</span>
+                            <span class="next">1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <p class="help">A: Click or press Enter/Space to like. B: Long‑press (mouse down / touch) to like once; hold Space/Enter to trigger on keyboard.</p>
+
+        <div class="sr-only" aria-live="polite" aria-atomic="true" id="srLive"></div>
+    </main>
+
+    <script src="script.js"></script>
+    
+</body>
+</html>
+
