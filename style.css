@@ -1,92 +1,138 @@
-/* General Page Styling */
+/* Base styles */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
 body {
-  font-family: Arial, sans-serif;
-  background: #fafafa;
   margin: 0;
-  padding: 0;
-  color: #333;
-  text-align: center;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  color: #0f172a;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
 }
 
-header {
-  background: #ffefd5;
-  padding: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+.container {
+  max-width: 640px;
+  margin: 24px auto;
+  padding: 16px;
 }
 
-h1 {
-  margin: 0 0 10px;
+.title {
+  margin: 0 0 16px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
 }
 
-main {
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(2, 6, 23, 0.08);
+  overflow: hidden;
+}
+
+.photo {
+  display: block;
+  width: 100%;
+  height: 360px;
+  object-fit: cover;
+}
+
+.actions {
   display: grid;
-  gap: 20px;
-  max-width: 600px;
-  margin: 30px auto;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 16px;
 }
 
-.recipe-card {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* Like Section */
-.like-section {
-  margin-top: 15px;
+.action-block {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  gap: 16px;
 }
 
-/* A: Click-to-Like Heart */
-.like-btn {
-  font-size: 28px;
-  cursor: pointer;
-  border: none;
-  background: none;
-  transition: transform 0.2s;
+.heart-btn {
   position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: none;
+  background: #f1f5f9;
+  cursor: pointer;
+  transition: transform 150ms ease, background 200ms ease;
+  outline-offset: 3px;
+}
+.heart-btn:active { transform: scale(0.96); }
+.heart-btn:hover { background: #e2e8f0; }
+
+.heart {
+  width: 28px;
+  height: 28px;
+  fill: #64748b;
+  transition: transform 300ms cubic-bezier(.2,.7,.2,1), fill 250ms ease;
+}
+.heart-btn.liked .heart {
+  fill: #ef4444;
+  transform: scale(1.15);
 }
 
-.like-btn:active {
-  transform: scale(1.3);
-}
-
-.like-count {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-/* Particles */
-.particles {
+/* Particle burst for A */
+.burst {
   position: absolute;
+  inset: 0;
   pointer-events: none;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 0;
 }
-
-/* B: Long-Press Heart */
-.longpress-btn {
-  position: relative;
-  font-size: 28px;
-  cursor: pointer;
-  border: none;
-  background: none;
-  outline: none;
-}
-
-.longpress-btn .progress {
+.particle {
   position: absolute;
-  bottom: -6px;
-  left: 0;
-  height: 4px;
-  width: 0%;
-  background: #ff4b5c;
-  border-radius: 4px;
-  transition: width 0.2s linear;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color, #ef4444);
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0;
 }
+
+.particle.dislike { filter: saturate(1.4) brightness(0.95); }
+
+/* Count ticker */
+.count { display: flex; align-items: center; gap: 8px; }
+.count-label { font-size: 12px; color: #64748b; }
+.ticker {
+  position: relative;
+  height: 28px;
+  overflow: hidden;
+  display: inline-block;
+  min-width: 2ch;
+}
+.ticker span {
+  display: block;
+  line-height: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.ticker .current { transform: translateY(0%); }
+.ticker.roll .current { animation: slideUpCurrent 280ms cubic-bezier(.2,.7,.2,1) forwards; }
+.ticker.roll .next { animation: slideUpNext 280ms cubic-bezier(.2,.7,.2,1) forwards; }
+
+@keyframes slideUpCurrent {
+  to { transform: translateY(-100%); }
+}
+@keyframes slideUpNext {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0%); }
+}
+
+/* Progress ring for B */
+.heart-btn.progress::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: conic-gradient(#22c55e var(--p, 0%), transparent 0);
+  -webkit-mask: radial-gradient(circle 24px at center, transparent 22px, #000 22px);
+  mask: radial-gradient(circle 24px at center, transparent 22px, #000 22px);
+  opacity: var(--ring-o, 0);
+  transition: opacity 120ms ease;
+}
+.heart-btn.progress.holding { --ring-o: 1; }
+
+.visually-hidden, .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,1px,1px); white-space: nowrap; border: 0; }
+
